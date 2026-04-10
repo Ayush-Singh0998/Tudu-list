@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tudu — Task Manager</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body class="dark">
+
+  <!-- ═══════════════════════════════ LOGIN PAGE ═══════════════════════════════ -->
+  <div id="auth-page" class="auth-page hidden">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="logo-icon">✓</div>
+        <span class="logo-text">Tudu</span>
+      </div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to manage your tasks</p>
+      <div id="auth-error" class="error-banner hidden"></div>
+      <div class="field">
+        <label class="lbl" for="auth-name">Your Name</label>
+        <input class="inp" type="text" id="auth-name" placeholder="Enter your name" autocomplete="name" />
+      </div>
+      <div class="field">
+        <label class="lbl" for="auth-email">Email</label>
+        <input class="inp" type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <button class="btn btn-primary btn-full" id="auth-submit">Get Started →</button>
+      <p class="auth-note">No account needed — your data stays on your device.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ APP SHELL ═══════════════════════════════ -->
+  <div id="app" class="app hidden">
+
+    <!-- SIDEBAR (desktop) -->
+    <aside class="sidebar sidebar-d" id="sidebar-desktop">
+      <div class="sidebar-inner" id="sidebar-inner-desktop"></div>
+    </aside>
+
+    <!-- MOBILE OVERLAY -->
+    <div id="mobile-overlay" class="mobile-overlay hidden">
+      <div class="overlay-backdrop" id="overlay-backdrop"></div>
+      <aside class="sidebar sidebar-mobile">
+        <div class="sidebar-inner" id="sidebar-inner-mobile"></div>
+      </aside>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-col">
+
+      <!-- MOBILE TOPBAR -->
+      <header class="topbar mobile-bar">
+        <div class="topbar-left">
+          <button class="btn btn-ghost icon-btn" id="mobile-menu-btn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <span class="logo-text-sm">Tudu</span>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-danger small hidden" id="mobile-urgent-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span id="mobile-urgent-count">0</span>
+          </button>
+          <button class="btn btn-ghost icon-btn" id="mobile-theme-btn">
+            <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            <svg class="icon-sun hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 5a7 7 0 100 14A7 7 0 0012 5z"/></svg>
+          </button>
+          <button class="btn btn-primary small" id="mobile-new-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- DESKTOP TOPBAR -->
+      <header class="topbar topbar-desktop sidebar-d">
+        <div style="flex:1"></div>
+        <button class="btn btn-danger small hidden" id="desktop-urgent-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span id="desktop-urgent-count">0</span> urgent
+        </button>
+        <button class="btn btn-ghost icon-btn" id="desktop-theme-btn">
+          <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <svg class="icon-sun hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 5a7 7 0 100 14A7 7 0 0012 5z"/></svg>
+        </button>
+        <button class="btn btn-primary" id="desktop-new-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New Task
+        </button>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <main class="page-content">
+        <div class="page-inner">
+
+          <!-- DASHBOARD -->
+          <section id="page-home" class="page fade-in hidden">
+            <div id="notif-banner" class="notif-banner hidden">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <div class="notif-banner-text">
+                <span class="notif-banner-title">Enable notifications</span>
+                <span class="notif-banner-sub">Get alerts even when this tab is in the background</span>
+              </div>
+              <button class="btn btn-warn small" id="notif-enable-btn">Enable</button>
+              <button class="btn btn-ghost icon-btn small" id="notif-dismiss-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="greeting-block">
+              <h1 class="page-title" id="greeting-text">Good morning 👋</h1>
+              <p class="page-sub">Here's what's on your plate</p>
+            </div>
+            <div class="stat-grid" id="home-stats"></div>
+            <div id="home-urgent" class="hidden">
+              <h2 class="section-title danger-text">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Needs Attention
+              </h2>
+              <div class="task-list" id="home-urgent-list"></div>
+            </div>
+            <div class="card legend-card">
+              <p class="legend-label">STATUS LEGEND</p>
+              <div class="legend-row" id="home-legend"></div>
+            </div>
+            <div>
+              <h2 class="section-title">Quick Progress</h2>
+              <div class="charts-grid" id="home-charts"></div>
+            </div>
+          </section>
+
+          <!-- ALL TASKS -->
+          <section id="page-tasks" class="page fade-in hidden">
+            <div class="page-header">
+              <div>
+                <h1 class="page-title">All Tasks</h1>
+                <p class="page-sub" id="tasks-count">0 tasks</p>
+              </div>
+              <button class="btn btn-primary" id="tasks-new-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                New Task
+              </button>
+            </div>
+            <div class="filter-row">
+              <div class="search-bar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input class="inp" type="text" id="task-search" placeholder="Search tasks…" />
+              </div>
+              <select class="inp sel" id="filter-status">
+                <option>All</option>
+                <option>Active</option>
+                <option>Completed</option>
+                <option>Overdue</option>
+                <option>Upcoming</option>
+              </select>
+              <select class="inp sel" id="filter-priority">
+                <option value="All">All Priorities</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+              <select class="inp sel" id="filter-tag">
+                <option value="All">All Tags</option>
+                <option>Personal</option>
+                <option>Work</option>
+                <option>Health</option>
+                <option>Finance</option>
+                <option>Learning</option>
+                <option>Social</option>
+              </select>
+            </div>
+            <div class="legend-row mb-sm" id="tasks-legend"></div>
+            <div class="task-list" id="task-list"></div>
+          </section>
+
+          <!-- ALERTS -->
+          <section id="page-upcoming" class="page fade-in hidden">
+            <h1 class="page-title">Alerts</h1>
+            <p class="page-sub mb-lg">Real-time task status monitoring</p>
+            <div id="alerts-empty" class="empty-state hidden">
+              <div class="empty-icon">🎉</div>
+              <p class="empty-title">All clear!</p>
+              <p class="empty-sub">No tasks need urgent attention right now</p>
+            </div>
+            <div id="alerts-critical" class="hidden">
+              <h2 class="section-title" style="color:var(--danger)">◉ Due in &lt; 3 Hours</h2>
+              <div class="task-list" id="alerts-critical-list"></div>
+            </div>
+            <div id="alerts-upcoming" class="hidden">
+              <h2 class="section-title" style="color:var(--warn)">◑ Due Today</h2>
+              <div class="task-list" id="alerts-upcoming-list"></div>
+            </div>
+            <div id="alerts-overdue" class="hidden">
+              <h2 class="section-title" style="color:#dc2626">✕ Overdue</h2>
+              <div class="task-list" id="alerts-overdue-list"></div>
+            </div>
+          </section>
+
+          <!-- PROGRESS -->
+          <section id="page-progress" class="page fade-in hidden">
+            <h1 class="page-title">Progress</h1>
+            <p class="page-sub mb-lg">Track productivity over time</p>
+            <div class="charts-grid" id="progress-charts"></div>
+            <div style="margin-top:20px">
+              <h2 class="section-title">Insights</h2>
+              <div class="stat-grid" id="progress-insights"></div>
+            </div>
+          </section>
+
+          <!-- SETTINGS -->
+          <section id="page-settings" class="page fade-in hidden">
+            <h1 class="page-title">Settings</h1>
+            <p class="page-sub mb-lg">Preferences, notifications, and color guide</p>
+            <div class="card settings-card">
+              <h2 class="card-section-title">Profile</h2>
+              <div class="profile-row">
+                <div class="avatar-large" id="settings-avatar">U</div>
+                <div class="profile-fields">
+                  <div class="field">
+                    <label class="lbl" for="settings-name">Name</label>
+                    <input class="inp" type="text" id="settings-name" />
+                  </div>
+                  <div class="field">
+                    <label class="lbl" for="settings-email">Email</label>
+                    <input class="inp" type="email" id="settings-email" />
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-sm" id="settings-save-btn">Save Changes</button>
+            </div>
+            <div class="card settings-card">
+              <h2 class="card-section-title">Appearance</h2>
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-title">Dark Mode</p>
+                  <p class="settings-row-sub">Toggle dark / light theme</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="settings-dark-toggle" />
+                  <span class="sw-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="card settings-card">
+              <h2 class="card-section-title">Notifications</h2>
+              <div class="settings-row border-bottom">
+                <div>
+                  <p class="settings-row-title">In-app Toasts</p>
+                  <p class="settings-row-sub">Alerts inside the app with snooze actions</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="settings-toast-toggle" checked />
+                  <span class="sw-slider"></span>
+                </label>
+              </div>
+              <div class="settings-row mt-sm">
+                <div>
+                  <p class="settings-row-title">Browser Push</p>
+                  <p class="settings-row-sub">Works even when tab is in background</p>
+                </div>
+                <div class="notif-perm-row">
+                  <span class="perm-badge" id="perm-badge">Not set</span>
+                  <button class="btn btn-primary small" id="settings-notif-btn">Enable</button>
+                </div>
+              </div>
+            </div>
+            <div class="card settings-card">
+              <h2 class="card-section-title">Color Classification Guide</h2>
+              <p class="settings-row-sub mb-sm">Tasks are colored automatically by status. You can set a manual override per task.</p>
+              <div id="color-guide"></div>
+            </div>
+          </section>
+
+        </div><!-- /page-inner -->
+      </main>
+    </div><!-- /main-col -->
+  </div><!-- /app -->
+
+  <!-- ═══════════════════════════════ TASK MODAL ═══════════════════════════════ -->
+  <div id="task-modal" class="modal-overlay hidden">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">New Task</h2>
+        <button class="btn btn-ghost icon-btn" id="modal-close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="modal-error" class="error-banner hidden"></div>
+      <div class="modal-fields">
+        <div class="field">
+          <label class="lbl" for="m-title">Title *</label>
+          <input class="inp" type="text" id="m-title" placeholder="What needs to be done?" />
+        </div>
+        <div class="field">
+          <label class="lbl" for="m-desc">Description</label>
+          <textarea class="inp" id="m-desc" rows="2" placeholder="Add details (optional)"></textarea>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label class="lbl" for="m-deadline">Deadline</label>
+            <input class="inp" type="datetime-local" id="m-deadline" />
+          </div>
+          <div class="field">
+            <label class="lbl reminder-label">
+              <span>Reminder</span>
+              <button type="button" class="btn-link" id="m-remind-suggest">−1 hr</button>
+            </label>
+            <input class="inp" type="datetime-local" id="m-reminder" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">Priority</label>
+          <div class="pill-group" id="priority-group">
+            <button class="btn pill-btn" data-value="Low">Low</button>
+            <button class="btn pill-btn" data-value="Medium">Medium</button>
+            <button class="btn pill-btn" data-value="High">High</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">Tags</label>
+          <div class="pill-group" id="tags-group">
+            <button class="btn pill-btn tag-pill-btn" data-value="Personal">Personal</button>
+            <button class="btn pill-btn tag-pill-btn" data-value="Work">Work</button>
+            <button class="btn pill-btn tag-pill-btn" data-value="Health">Health</button>
+            <button class="btn pill-btn tag-pill-btn" data-value="Finance">Finance</button>
+            <button class="btn pill-btn tag-pill-btn" data-value="Learning">Learning</button>
+            <button class="btn pill-btn tag-pill-btn" data-value="Social">Social</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lbl">Manual Color <span class="label-note">(overrides status color)</span></label>
+          <div class="color-swatches" id="color-swatches"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="modal-save">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Add Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ TOAST STACK ═══════════════════════════════ -->
+  <div id="toast-stack" class="toast-stack"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
